@@ -1,36 +1,49 @@
-try:
-    import pygame, os, time
-except:
-    print('cmd run: pip3 install pygame -i https://mirrors.aliyun.com/pypi/simple')
-    exit()
+import pygame, os, time
 from pygame.locals import *
-from game import Game
-from ai import Ai
-from config import *
+from Game import Game
+from PlayerAI import Ai
+from Constants import *
 """
 2048 Game
 
 This program implements the popular game 2048 using the Pygame library.
 It allows the player to manually control the game or let an AI play automatically.
 
-Usage:
-    - Use arrow keys or 'W', 'A', 'S', 'D' keys to move the tiles in the game.
-    - Click the 'Start' button to start a new game.
-    - Click the 'Auto' button to let the AI play automatically.
-    - Click the '5x5', '6x6', '8x8' buttons to change the grid size.
-    - Press 'K' key to decrease the AI's move interval.
-    - Press 'L' key to increase the AI's move interval.
-
 Requirements:
     - Python 3.x
     - Pygame library
 
-Author:
-    Hong Anh
+Classes:
+    - Main: The main game controller responsible for managing game states, event handling, and rendering the game interface.
+    - Button: Represents a clickable button in the game interface.
 
-Date:
-    2023-06
+Constants and Configurations:
+    - FPS: Frames per second for the game.
+    - SIZE: Default grid size for the game.
+    - SIZE_5x5, SIZE_6x6, SIZE_8x8: Alternative grid sizes for the game.
+    - DEBUG: Flag for enabling debug mode.
+    - colors: Dictionary of colors for different tile values.
+    - GAME_WH: Width and height of the game grid.
+    - WINDOW_W, WINDOW_H: Width and height of the game window.
+
+Functions:
+    - run(): Entry point for starting the game.
+
+Usage:
+    Run the script to start the game. The game window will appear, and you can interact with it using the keyboard or mouse.
+    The objective of the game is to reach the 2048 tile by merging tiles with the same value. The game ends when there are no
+    valid moves left or when the 2048 tile is reached.
+
+    Controls:
+    - Arrow keys or 'W', 'A', 'S', 'D': Move the tiles in the corresponding directions.
+    - 'Start' button: Start a new game renders 4x4 grid.
+    - 'Auto' button: Enable or disable auto-play mode.
+    - '5x5', '6x6', '8x8' buttons: Change the grid size.
+
+    Enjoy playing 2048!
+
 """
+
 
 # config = Development()
 config = SupperFast()
