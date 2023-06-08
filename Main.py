@@ -83,6 +83,7 @@ class Main:
         self.move_sound = pygame.mixer.Sound("./sound/move_sound.wav")
         self.win_sound = pygame.mixer.Sound("./sound/win_sound.wav")
         self.lose_sound = pygame.mixer.Sound("./sound/lose_sound.wav")
+        self.icon_path = "icon.ico"  # Thay đổi thành đường dẫn thực tế của icon
 
     def start(self):
         # Load buttons
@@ -202,6 +203,12 @@ class Main:
         self.screen2 = pygame.display.set_mode((w, h), pygame.DOUBLEBUF, 32)
         self.screen = self.screen2.convert_alpha()
         pygame.display.set_caption(title)
+        icon_path = "icon.ico"  # Thay đổi thành đường dẫn thực tế của icon
+        # Đọc file icon
+        icon = pygame.image.load(icon_path)
+
+        # Đặt icon cho cửa sổ
+        pygame.display.set_icon(icon)
 
     def update(self):
         self.screen2.blit(self.screen, (0, 0))
