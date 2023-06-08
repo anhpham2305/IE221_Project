@@ -13,5 +13,5 @@
 ### Run game
 
 ```
-python main.py
+python Main.py
 ```
