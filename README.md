@@ -4,7 +4,7 @@
 
 ### It allows the player to manually control the game or let an AI play automatically.
 
-### Thư viện sử dụng:
+### Lib:
 
 > pygame
 > numpy
