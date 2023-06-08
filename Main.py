@@ -1,5 +1,5 @@
 import pygame, os, time
-from pygame.locals import *
+
 from Game import Game
 from PlayerAI import Ai
 from Constants import *
@@ -83,13 +83,18 @@ class Main:
         self.move_sound = pygame.mixer.Sound("./sound/move_sound.wav")
         self.win_sound = pygame.mixer.Sound("./sound/win_sound.wav")
         self.lose_sound = pygame.mixer.Sound("./sound/lose_sound.wav")
-        self.icon_path = "icon.ico"  # Thay đổi thành đường dẫn thực tế của icon
+        self.time_limit = (
+            6  # Mức thời gian cho chế độ chơi tính thời gian (60 giây trong ví dụ)
+        )
+        self.start_time = 0  # Thời gian bắt đầu chơi
+        self.time_mode = False
 
     def start(self):
         # Load buttons
         self.button_list = [
             Button("start", "Restart", (GAME_WH + 60, 130)),
             Button("ai", "Auto", (GAME_WH + 60, 220)),
+            Button("time", "Time", (GAME_WH + 60, 310)),  # Thêm button "Time"
             # Button('size_5x5', '5x5', (GAME_WH + 60, 310)),
             # Button('size_6x6', '6x6', (GAME_WH + 60, 400)),
             # Button('size_8x8', '8x8', (GAME_WH + 60, 490))
@@ -97,6 +102,7 @@ class Main:
         self.run()
 
     def run(self):
+        time_start = 0
         while self.state != "exit":
             if self.game.state in ["over", "win"]:
                 self.state = self.game.state
@@ -104,6 +110,7 @@ class Main:
             if self.next_f != "" and (
                 self.state == "run"
                 or self.state == "ai"
+                or self.state == "time"
                 and time.time() - self.last_time > self.step_time
             ):
                 self.game.run(self.next_f)
@@ -118,6 +125,19 @@ class Main:
             self.draw_grid()
             self.update()
         print("Exiting the game")
+
+    def end_game(self):
+        # ...
+        if (
+            self.state == "time"
+        ):  # Thêm điều kiện xử lý khi kết thúc trò chơi tính thời gian
+            self.state = "over"
+            self.draw_text("Time's up!", (GAME_WH + 60, 200))
+            self.draw_text(
+                "Final Score: {}".format(self.game.score), (GAME_WH + 60, 240)
+            )
+
+    # ...
 
     def draw_grid(self):
         for y in range(SIZE):
@@ -174,6 +194,19 @@ class Main:
         if self.state == "ai":
             self.draw_text("Interval: {}".format(self.step_time), (GAME_WH + 60, 60))
             self.draw_text("Evaluation: {}".format(self.jm), (GAME_WH + 60, 80))
+        if self.state == "time":
+            current_time = time.time() - self.start_time
+            remaining_time = self.time_limit - current_time
+
+            # Chuyển đổi thời gian từ giây sang phút:giây
+            minutes = int(remaining_time // 60)
+            seconds = int(remaining_time % 60)
+
+            # Định dạng thời gian dưới dạng chuỗi phút:giây
+            time_text = "{:02d}:{:02d}".format(minutes, seconds)
+
+            # Vẽ thông tin thời gian lên màn hình
+            self.draw_text("Time: {}".format(time_text), (GAME_WH + 60, 100))
 
     def set_background(self, color=(255, 0, 0)):
         self.screen.fill(color)
@@ -203,12 +236,6 @@ class Main:
         self.screen2 = pygame.display.set_mode((w, h), pygame.DOUBLEBUF, 32)
         self.screen = self.screen2.convert_alpha()
         pygame.display.set_caption(title)
-        icon_path = "icon.ico"  # Thay đổi thành đường dẫn thực tế của icon
-        # Đọc file icon
-        icon = pygame.image.load(icon_path)
-
-        # Đặt icon cho cửa sổ
-        pygame.display.set_icon(icon)
 
     def update(self):
         self.screen2.blit(self.screen, (0, 0))
@@ -216,7 +243,21 @@ class Main:
         # pygame.display.update()
         pygame.display.flip()
         time_passed = self.clock.tick(self.fps)
+        if self.state == "time":
+            current_time = time.time() - self.start_time
+            remaining_time = self.time_limit - current_time
 
+            minutes = int(remaining_time // 60)
+            seconds = int(remaining_time % 60)
+
+            time_text = "{:02d}:{:02d}".format(minutes, seconds)
+
+            self.draw_text("Time: {}".format(time_text), (GAME_WH + 60, 100))
+
+            if remaining_time <= 0:
+                self.end_game()
+
+    # Event handling
     # Event handling
     def handle_events(self):
         if self.state == "ai" and self.next_f == "":
@@ -227,16 +268,28 @@ class Main:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     self.state = "exit"
-                elif event.key in [pygame.K_LEFT, pygame.K_a] and self.state == "run":
+                elif event.key in [pygame.K_LEFT, pygame.K_a] and self.state in [
+                    "run",
+                    "time",
+                ]:
                     self.next_f = "L"
                     self.move_sound.play()
-                elif event.key in [pygame.K_RIGHT, pygame.K_d] and self.state == "run":
+                elif event.key in [pygame.K_RIGHT, pygame.K_d] and self.state in [
+                    "run",
+                    "time",
+                ]:
                     self.next_f = "R"
                     self.move_sound.play()
-                elif event.key in [pygame.K_DOWN, pygame.K_s] and self.state == "run":
+                elif event.key in [pygame.K_DOWN, pygame.K_s] and self.state in [
+                    "run",
+                    "time",
+                ]:
                     self.next_f = "D"
                     self.move_sound.play()
-                elif event.key in [pygame.K_UP, pygame.K_w] and self.state == "run":
+                elif event.key in [pygame.K_UP, pygame.K_w] and self.state in [
+                    "run",
+                    "time",
+                ]:
                     self.next_f = "U"
                     self.move_sound.play()
                 elif event.key in [pygame.K_k, pygame.K_l] and self.state == "ai":
@@ -252,6 +305,14 @@ class Main:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for i in self.button_list:
                     if i.is_click(event.pos):
+                        if i.name == "time":
+                            if not self.time_mode:
+                                self.time_mode = True
+                                self.start_time = time.time()
+                                time_start = time.time()
+                            else:
+                                self.time_mode = False
+
                         if i.name == "size_5x5":
                             self.game = Game(SIZE_5x5)
                             self.state = "start"
@@ -263,6 +324,10 @@ class Main:
                             self.state = "start"
                         else:
                             self.state = i.name
+                            if i.name == "start":
+                                self.game.start()  # Bắt đầu trò chơi
+                                self.game.score = 0  # Đặt điểm số về 0
+                                self.state = "run"
                             if i.name == "ai":
                                 i.name = "run"
                                 i.text = "Cancel Auto"
